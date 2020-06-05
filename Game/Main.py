@@ -15,11 +15,14 @@ windowWidth = 800
 windowHeight = 800
 screen = pygame.display.set_mode([windowWidth, windowHeight])
 white = [255, 255, 255]
+black = (0, 0, 0)
 screen.fill(white)
+
+# Draw game border
+pygame.draw.rect(screen, black, (100, 100, 600, 600), 5)
 
 # Displaying Score
 score = 0
-black = (0, 0, 0)
 font = pygame.font.Font('freesansbold.ttf', 32)
 score_text, score_text_rect = 0, 0
 
@@ -89,8 +92,10 @@ def updateSnake():
 
 # Checks to see if the game is over
 def checkLose():
-    if (score == -1):
+    head = snakeBody[0]
+    if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34):
         running = False
+        print(score - 1)
         pygame.quit()
 
 # Checks to see if the snake has eaten a fruit or not
