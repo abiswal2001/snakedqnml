@@ -6,9 +6,10 @@ import Snake
 import pygame
 import Player
 import Computer
+import ComputerSnake
 
 # Creates the snake game.
-game = Snake.Snake()
+game = ComputerSnake.Snake()
 
 # Run the player Game
 Computer.ComputerPlayer(game)
