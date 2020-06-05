@@ -30,6 +30,7 @@ class Snake():
         self.fruitColor = [255, 0, 0]
         self.apple = pygame.image.load(os.getcwd() + '/apple.png')
         self.screen.fill(self.white)
+        self.dead = False
 
         # Draw game border
         pygame.draw.rect(self.screen, self.black, (95, 95, 610, 610), 5)
@@ -85,12 +86,13 @@ class Snake():
         else:
             head[1] += 1
         self.snakeBody.insert(0, head)
-
+        print("moved to " + str(head[0]) + ", " + str(head[1]))
         # Only continues if game has not ended
         if (not self.checkLose()):
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
         else:
+
             return
 
         # Removes last body part if fruit was not eaten
@@ -120,6 +122,7 @@ class Snake():
                 or not convertToKey(head) in self.openLocations):
             print(self.score - 1)
             self.newGame()
+            self.dead = True
             return True
 
     """ Checks to see if the snake has eaten a fruit or not """
