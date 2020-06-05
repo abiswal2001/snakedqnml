@@ -3,6 +3,7 @@
 # Necessary Imports
 import pygame
 import time
+import os
 
 # Initialize Game
 pygame.init()
@@ -16,7 +17,9 @@ windowHeight = 800
 screen = pygame.display.set_mode([windowWidth, windowHeight])
 white = [255, 255, 255]
 black = (0, 0, 0)
+green = (46, 135, 58)
 fruitColor = [255, 0, 0]
+apple = pygame.image.load(os.getcwd() + '/apple.png')
 screen.fill(white)
 
 # Draw game border
@@ -94,7 +97,7 @@ def updateSnake():
 
     # Draws the snake after it moved
     for body in snakeBody:
-        pygame.draw.rect(screen, black, (body[0] * 20, body[1] * 20, 18, 18), 0)
+        pygame.draw.rect(screen, green, (body[0] * 20, body[1] * 20, 18, 18), 0)
 
     checkLose()
 
@@ -111,7 +114,8 @@ def checkLose():
 
 # Checks to see if the snake has eaten a fruit or not
 def checkFruit():
-    pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
+    # pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
+    screen.blit(pygame.transform.scale(apple, (18, 18)), (fruit[0] * 20, fruit[1] * 20))
     if (snakeBody[0] == fruit):
         return True
     return False
