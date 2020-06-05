@@ -125,8 +125,10 @@ while running:
     # Handles events
     for i in pygame.event.get():
         keyPresses()
+        # Event which occurs every second
         if i.type == pygame.USEREVENT + 1:
             updateSnake()
+        # Event which occurs when someone exits the window
         if i.type == pygame.QUIT:
             running = False
             pygame.quit()
