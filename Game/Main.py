@@ -4,6 +4,7 @@
 import pygame
 import time
 import os
+import random
 
 # Initialize Game
 pygame.init()
@@ -48,8 +49,14 @@ snakeBody = [[20, 20]]
 # Initial Fruit Location
 fruit = [25, 20]
 
+# A dictionary which contains all possible locations that a fruit can be at.
+openLocations = {}
+for i in range(30):
+    for j in range(30):
+        openLocations[i + 30 * j] = [i + 5, j + 5]
+
 # Start Timer
-pygame.time.set_timer(pygame.USEREVENT + 1, 500)
+pygame.time.set_timer(pygame.USEREVENT + 1, 300)
 
 # Default direction which the snake will be moving in
 dir = 1
@@ -72,6 +79,8 @@ def keyPresses():
 
 # Updates snake every time a certain amount of time passes
 def updateSnake():
+    global fruit
+
     # Checks to see if the snake head reaches a fruit
     eaten = checkFruit()
 
@@ -91,39 +100,62 @@ def updateSnake():
         head[1] += 1
     snakeBody.insert(0, head)
 
+    # Only continues if game has not ended
+    if (not checkLose()):
+        key = convertToKey(head)
+        openLocations.pop(convertToKey(head))
+    else:
+        return
+
     # Removes last body part if fruit was not eaten
     if (not eaten):
-        snakeBody.pop()
+        removed = snakeBody.pop()
+        openLocations[convertToKey(removed)] = removed
+
+    # Creates a new fruit if the fruit was eaten and increments score
+    else:
+        fruit = newFruit()
+        updateScore()
+
+    # Draws the fruit location
+    displayFruit()
 
     # Draws the snake after it moved
     for body in snakeBody:
         pygame.draw.rect(screen, green, (body[0] * 20, body[1] * 20, 18, 18), 0)
 
-    checkLose()
-
 # Checks to see if the game is over
 def checkLose():
     head = snakeBody[0]
     lose = False
-    if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34):
-        lose = True
-    if lose:
+    if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34 or not convertToKey(head) in openLocations):
         running = False
-        print(score - 1)
+        print(score)
         pygame.quit()
+        return True
 
 # Checks to see if the snake has eaten a fruit or not
 def checkFruit():
     # pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
-    screen.blit(pygame.transform.scale(apple, (18, 18)), (fruit[0] * 20, fruit[1] * 20))
     if (snakeBody[0] == fruit):
         return True
     return False
 
+def displayFruit():
+    screen.blit(pygame.transform.scale(apple, (18, 18)), (fruit[0] * 20, fruit[1] * 20))
+
+# Converts a given location to a key for openLocations dictionary
+def convertToKey(location):
+    return location[0] - 5 + 30 * (location[1] - 5)
+
+# Returns location of where the next fruit should be.
+def newFruit():
+    return random.choice(list(openLocations.values()))
+
 # Keeps screen open until you close it
 running = True
 while running:
-    # Updates Pygame Display
+    # Updates Display
     pygame.display.update()
 
     # Handles events
@@ -131,6 +163,6 @@ while running:
         keyPresses()
         if i.type == pygame.USEREVENT + 1:
             updateSnake()
-        if i.type == pygame.QUIT:
+        elif i.type == pygame.QUIT:
             running = False
             pygame.quit()
