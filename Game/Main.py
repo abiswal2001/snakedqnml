@@ -36,29 +36,66 @@ def updateScore():
 updateScore()
 
 # Snake Body
-snakeBody = [(20, 20)];
+snakeBody = [[20, 20]];
 
 # Start Timer
-pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
+pygame.time.set_timer(pygame.USEREVENT + 1, 500)
 
-# Handles key presses
+# Default direction which the snake will be moving in
+dir = 1
+
+#
 def keyPresses():
+    global dir
     # Stores whether or not that key has been pressed
     keys=pygame.key.get_pressed()
 
     # Left key press
-    if keys[pygame.K_LEFT]:
-        print("1")
-    elif keys[pygame.K_RIGHT]:
-        print("2")
+    if keys[pygame.K_RIGHT]:
+        dir = 1
+    elif keys[pygame.K_LEFT]:
+        dir = 2
     elif keys[pygame.K_UP]:
-        print("3")
+        dir = 3
     elif keys[pygame.K_DOWN]:
-        print("4")
+        dir = 4
 
 # Updates snake every time a certain amount of time passes
 def updateSnake():
-    print("hi")
+    # Erase previous snake body
+    for body in snakeBody:
+        pygame.draw.rect(screen, white, (body[0] * 20, body[1] * 20, 18, 18), 0)
+
+    # Moves the snake based on the current direction
+    if (dir == 1):
+        for body in snakeBody:
+            body[0] += 1
+    elif (dir == 2):
+        for body in snakeBody:
+            body[0] -= 1
+    elif (dir == 3):
+        for body in snakeBody:
+            body[1] -= 1
+    else:
+        for body in snakeBody:
+            body[1] += 1
+
+    # Draws the snake after it moved
+    for body in snakeBody:
+        pygame.draw.rect(screen, black, (body[0] * 20, body[1] * 20, 18, 18), 0)
+
+    #checkFruit()
+    checkLose()
+
+# Checks to see if the game is over
+def checkLose():
+    if (score == -1):
+        running = False
+        pygame.quit()
+
+# Checks to see if the snake has eaten a fruit or not
+#def checkFruit():
+
 
 # Keeps screen open until you close it
 running = True
@@ -70,7 +107,7 @@ while running:
     for i in pygame.event.get():
         keyPresses()
         if i.type == pygame.USEREVENT + 1:
-            updateScore();
+            updateSnake()
         if i.type == pygame.QUIT:
             running = False
             pygame.quit()
