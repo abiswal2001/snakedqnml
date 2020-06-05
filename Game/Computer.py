@@ -4,6 +4,7 @@
 import pygame
 import random
 import Snake
+import pickle
 
 class ComputerPlayer():
     """ A class which allows the player to play the snake game
@@ -24,23 +25,11 @@ class ComputerPlayer():
             self.game.setDir(dir)
             self.game.updateSnake()
         self.playGUI()
+        self.persistence()
 
-    """ Takes the list of moves in the snake game that was played
-    and plays it to a GUI. """
-    def playGUI(self):
-        index = 0
-        self.game = Snake.Snake()
-        while index < len(self.moves):
-            # Updates Display
-            pygame.display.update()
+    """ Sets up persistence of the stored moves."""
+    def persistence(self):
+        with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
+            pickle.dump(self.moves, sim_moves)
 
-            # Handles events
-            for i in pygame.event.get():
-                if i.type == pygame.USEREVENT + 1:
-                    self.game.updateSnake()
-                    self.game.setDir(self.moves[index])
-                # Quitting out of the game
-                elif i.type == pygame.QUIT:
-                    running = False
-                    pygame.quit()
-            index += 1
+    
