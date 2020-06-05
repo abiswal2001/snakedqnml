@@ -31,7 +31,7 @@ score = 1
 font = pygame.font.Font('freesansbold.ttf', 32)
 score_text, score_text_rect = 0, 0
 
-# Updates score every time the snake eats a something
+# Updates score text at the top of the screen and adds one to the score
 def updateScore():
     global score_text, text_rect, score
     score_text = font.render('Total Score: ' + str(score), True, black, white)
@@ -67,14 +67,14 @@ def keyPresses():
     # Stores whether or not that key has been pressed
     keys=pygame.key.get_pressed()
 
-    # Left key press
-    if keys[pygame.K_RIGHT]:
+    # Handling of directions
+    if (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
         dir = 1
-    elif keys[pygame.K_LEFT]:
+    elif (keys[pygame.K_LEFT] or keys[pygame.K_a]):
         dir = 2
-    elif keys[pygame.K_UP]:
+    elif (keys[pygame.K_UP] or keys[pygame.K_w]):
         dir = 3
-    elif keys[pygame.K_DOWN]:
+    elif (keys[pygame.K_DOWN] or keys[pygame.K_s]):
         dir = 4
 
 # Updates snake every time a certain amount of time passes
@@ -128,7 +128,8 @@ def updateSnake():
 def checkLose():
     global running
     head = snakeBody[0]
-    lose = False
+
+    # Checks to see if the snake collides without itself or goes out of bounds
     if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34 or not convertToKey(head) in openLocations):
         running = False
         print(score - 1)
@@ -166,6 +167,7 @@ while running:
         if i.type == pygame.USEREVENT + 1:
             if (updateSnake()):
                 break
+        # Quitting out of the game
         elif i.type == pygame.QUIT:
             running = False
             pygame.quit()
