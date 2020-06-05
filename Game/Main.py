@@ -5,9 +5,11 @@ program or it allows the player to play snake. """
 import Snake
 import pygame
 import Player
+import Computer
+import ComputerSnake
 
 # Creates the snake game.
-game = Snake.Snake()
+game = ComputerSnake.Snake()
 
 # Run the player Game
-Player.Player(game)
+Computer.ComputerPlayer(game)
