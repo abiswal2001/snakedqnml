@@ -10,6 +10,8 @@ class Snake():
     """A class which plays the primary portion of the snake game while
     receiving moves to play from other player classes. """
 
+    """ Creates the snake game with the given border limits and
+    starts the game. """
     def __init__(self):
         # Initialize Game
         pygame.init()
@@ -20,7 +22,8 @@ class Snake():
         # Setting up the window
         self.windowWidth = 800
         self.windowHeight = 800
-        self.screen = pygame.display.set_mode([self.windowWidth, self.windowHeight])
+        self.screen = pygame.display.set_mode([self.windowWidth,
+            self.windowHeight])
         self.white = [255, 255, 255]
         self.black = (0, 0, 0)
         self.green = (46, 135, 58)
@@ -29,7 +32,7 @@ class Snake():
         self.screen.fill(self.white)
 
         # Draw game border
-        pygame.draw.rect(self.screen, self.black, (100, 100, 600, 600), 5)
+        pygame.draw.rect(self.screen, self.black, (95, 95, 610, 610), 5)
 
         # Displaying Score
         self.score = 1
@@ -57,37 +60,29 @@ class Snake():
         # Default direction which the snake will be moving in
         self.dir = 1
 
-    # Updates score text at the top of the screen and adds one to the score
+    """ Updates score text at the top of the screen and adds one to the score """
     def updateScore(self):
-        self.score_text = self.font.render('Total Score: ' + str(self.score), True, self.black, self.white)
+        self.score_text = self.font.render('Total Score: ' +
+            str(self.score), True, self.black, self.white)
         self.score_text_rect = self.score_text.get_rect()
         self.score_text_rect.center = (self.windowWidth // 2, 20)
         self.screen.blit(self.score_text, self.score_text_rect)
         self.score += 1
 
-    # Handles pressed keys
-    def keyPresses(self):
-        # Stores whether or not that key has been pressed
-        keys=pygame.key.get_pressed()
+    """ Changes the direction that the snake moves in.
+    This essentially represents players playing the game. """
+    def setDir(self, dir):
+        self.dir = dir
 
-        # Handling of directions
-        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
-            self.dir = 1
-        elif (keys[pygame.K_LEFT] or keys[pygame.K_a]):
-            self.dir = 2
-        elif (keys[pygame.K_UP] or keys[pygame.K_w]):
-            self.dir = 3
-        elif (keys[pygame.K_DOWN] or keys[pygame.K_s]):
-            self.dir = 4
-
-    # Updates snake every time a certain amount of time passes
+    """ Updates snake every time a certain amount of time passes """
     def updateSnake(self):
         # Checks to see if the snake head reaches a fruit
         eaten = self.checkFruit()
 
         # Erase previous snake body
         for body in self.snakeBody:
-            pygame.draw.rect(self.screen, self.white, (body[0] * 20, body[1] * 20, 18, 18), 0)
+            pygame.draw.rect(self.screen, self.white,
+                (body[0] * 20, body[1] * 20, 18, 18), 0)
 
         # Moves the snake based on the current direction
         head = self.snakeBody[0][:]
@@ -123,33 +118,36 @@ class Snake():
 
         # Draws the snake after it moved
         for body in self.snakeBody:
-            pygame.draw.rect(self.screen, self.green, (body[0] * 20, body[1] * 20, 18, 18), 0)
+            pygame.draw.rect(self.screen, self.green,
+                (body[0] * 20, body[1] * 20, 18, 18), 0)
 
-    # Checks to see if the game is over
+    """ Checks to see if the game is over """
     def checkLose(self):
         head = self.snakeBody[0]
 
         # Checks to see if the snake collides without itself or goes out of bounds
-        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34 or not convertToKey(head) in self.openLocations):
+        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
+                or not convertToKey(head) in self.openLocations):
             print(self.score - 1)
             pygame.quit()
             return True
 
-    # Checks to see if the snake has eaten a fruit or not
+    """ Checks to see if the snake has eaten a fruit or not """
     def checkFruit(self):
         # pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
         if (self.snakeBody[0] == self.fruit):
             return True
         return False
 
-    # Code which prints out the apple which represents the fruit on the screen
+    """ Code which prints out the apple which represents the fruit on the screen """
     def displayFruit(self):
-        self.screen.blit(pygame.transform.scale(self.apple, (18, 18)), (self.fruit[0] * 20, self.fruit[1] * 20))
+        self.screen.blit(pygame.transform.scale(self.apple,
+            (18, 18)), (self.fruit[0] * 20, self.fruit[1] * 20))
 
-    # Returns location of where the next fruit should be.
+    """ Returns location of where the next fruit should be. """
     def newFruit(self):
         return random.choice(list(self.openLocations.values()))
 
-# Converts a given location to a key for openLocations dictionary
+""" Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
     return location[0] - 5 + 30 * (location[1] - 5)
