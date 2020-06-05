@@ -1,4 +1,4 @@
-# Simple Snake Game
+""" Simple Snake Game """
 
 # Necessary Imports
 import pygame
@@ -34,31 +34,21 @@ class Snake():
         # Draw game border
         pygame.draw.rect(self.screen, self.black, (95, 95, 610, 610), 5)
 
+        # Main font to be used in this application
+        self.font = pygame.font.Font('freesansbold.ttf', 32)
+
         # Displaying Score
         self.score = 1
-        self.font = pygame.font.Font('freesansbold.ttf', 32)
-        self.score_text, self.score_text_rect = 0, 0
-
-        # Displays initial score of 0
-        self.updateScore()
-
-        # Snake Body
-        self.snakeBody = [[20, 20]]
-
-        # Initial Fruit Location
-        self.fruit = [25, 20]
-
-        # A dictionary which contains all possible locations that a fruit can be at.
-        self.openLocations = {}
-        for i in range(30):
-            for j in range(30):
-                self.openLocations[i + 30 * j] = [i + 5, j + 5]
+        self.score_text, self.score_text_rect = "", ""
 
         # Start Timer
         pygame.time.set_timer(pygame.USEREVENT + 1, 300)
 
-        # Default direction which the snake will be moving in
-        self.dir = 1
+        # Default fruit position
+        self.fruit = [25, 20]
+
+        # Starts a new game
+        self.newGame()
 
     """ Updates score text at the top of the screen and adds one to the score """
     def updateScore(self):
@@ -101,7 +91,7 @@ class Snake():
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
         else:
-            return True
+            return
 
         # Removes last body part if fruit was not eaten
         if (not eaten):
@@ -129,7 +119,7 @@ class Snake():
         if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
                 or not convertToKey(head) in self.openLocations):
             print(self.score - 1)
-            pygame.quit()
+            self.newGame()
             return True
 
     """ Checks to see if the snake has eaten a fruit or not """
@@ -144,9 +134,37 @@ class Snake():
         self.screen.blit(pygame.transform.scale(self.apple,
             (18, 18)), (self.fruit[0] * 20, self.fruit[1] * 20))
 
+    """ Erases the fruit from the GUI. """
+    def eraseFruit(self):
+        pygame.draw.rect(self.screen, self.white,
+            (self.fruit[0] * 20, self.fruit[1] * 20, 20, 20), 0)
+
     """ Returns location of where the next fruit should be. """
     def newFruit(self):
         return random.choice(list(self.openLocations.values()))
+
+    """ Creates a new game with the snake and fruit in the default positions. """
+    def newGame(self):
+        # Erases whatever fruit was on the board previously.
+        self.eraseFruit()
+
+        # Displays initial score of 0
+        self.updateScore()
+
+        # Snake Body
+        self.snakeBody = [[20, 20]]
+
+        # Initial Fruit Location
+        self.fruit = [25, 20]
+
+        # A dictionary which contains all possible locations that a fruit can be at.
+        self.openLocations = {}
+        for i in range(30):
+            for j in range(30):
+                self.openLocations[i + 30 * j] = [i + 5, j + 5]
+
+        # Default direction which the snake will be moving in
+        self.dir = 1
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
