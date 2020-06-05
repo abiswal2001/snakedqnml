@@ -27,7 +27,7 @@ screen.fill(white)
 pygame.draw.rect(screen, black, (100, 100, 600, 600), 5)
 
 # Displaying Score
-score = 0
+score = 1
 font = pygame.font.Font('freesansbold.ttf', 32)
 score_text, score_text_rect = 0, 0
 
@@ -105,7 +105,7 @@ def updateSnake():
         key = convertToKey(head)
         openLocations.pop(convertToKey(head))
     else:
-        return
+        return True
 
     # Removes last body part if fruit was not eaten
     if (not eaten):
@@ -126,11 +126,12 @@ def updateSnake():
 
 # Checks to see if the game is over
 def checkLose():
+    global running
     head = snakeBody[0]
     lose = False
     if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34 or not convertToKey(head) in openLocations):
         running = False
-        print(score)
+        print(score - 1)
         pygame.quit()
         return True
 
@@ -161,8 +162,10 @@ while running:
     # Handles events
     for i in pygame.event.get():
         keyPresses()
+        # Event which occurs every second
         if i.type == pygame.USEREVENT + 1:
-            updateSnake()
+            if (updateSnake()):
+                break
         elif i.type == pygame.QUIT:
             running = False
             pygame.quit()
