@@ -1,6 +1,5 @@
-import Computer
 import pickle
-import Snake
+from Game import Snake
 import pygame
 
 """ Takes the list of moves in the snake game that was played

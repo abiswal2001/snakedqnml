@@ -1,9 +1,7 @@
 """ Player class which represents a player playing snake. """
 
 # Necessary imports
-import pygame
 import random
-import Snake
 import pickle
 
 class ComputerPlayer():
@@ -24,7 +22,6 @@ class ComputerPlayer():
             self.moves.append(dir)
             self.game.setDir(dir)
             self.game.updateSnake()
-        self.playGUI()
         self.persistence()
 
     """ Sets up persistence of the stored moves."""

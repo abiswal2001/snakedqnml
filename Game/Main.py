@@ -2,9 +2,6 @@
 program or it allows the player to play snake. """
 
 # Necessary imports
-import Snake
-import pygame
-import Player
 import Computer
 import ComputerSnake
 

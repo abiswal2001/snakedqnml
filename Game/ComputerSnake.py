@@ -1,8 +1,6 @@
 """ Snake game without the GUI"""
 
 # Necessary Imports
-import time
-import os
 import random
 
 class Snake():
