@@ -12,6 +12,7 @@ class Player():
 
     """ Creates a game where a player can play snake. """
     def playerGame(self):
+        self.game.startGame()
         running = True
         while running:
             # Updates Display
@@ -23,7 +24,7 @@ class Player():
                 # Event which occurs every second
                 if i.type == pygame.USEREVENT + 1:
                     self.game.updateSnake()
-                    
+
                 # Quitting out of the game
                 elif i.type == pygame.QUIT:
                     running = False

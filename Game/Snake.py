@@ -31,6 +31,7 @@ class Snake():
         self.white = [255, 255, 255]
         self.black = (0, 0, 0)
         self.green = (46, 135, 58)
+        self.red = (255, 0, 0)
         self.fruitColor = [255, 0, 0]
         self.apple = pygame.image.load(os.getcwd() + '/apple.png')
         self.screen.fill(self.white)
@@ -46,14 +47,17 @@ class Snake():
         self.score = 1
         self.score_text, self.score_text_rect = "", ""
 
-        # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 300)
-
         # Default fruit position
         self.fruit = [25, 20]
 
+        # Snake Body
+        self.snakeBody = [[19, 20]]
+
         # Starts a new game
         self.newGame()
+
+        # Prints the snake and the apples
+        self.updateSnake()
 
     """ Updates score text at the top of the screen and adds one to the score """
     def updateScore(self):
@@ -155,10 +159,11 @@ class Snake():
         self.eraseFruit()
 
         # Displays initial score of 0
+        self.score = 1
         self.updateScore()
 
         # Snake Body
-        self.snakeBody = [[20, 20]]
+        self.snakeBody = [[19, 20]]
 
         # Initial Fruit Location
         self.fruit = [25, 20]
@@ -171,6 +176,11 @@ class Snake():
 
         # Default direction which the snake will be moving in
         self.dir = 1
+
+    """ Starts the actual snake game."""
+    def startGame(self):
+        # Start Timer
+        pygame.time.set_timer(pygame.USEREVENT + 1, 300)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):

@@ -15,7 +15,6 @@ class ComputerPlayer():
 
     """ Creates a game where a player can play snake. """
     def playerGame(self):
-        running = True
         while self.game.dead is False:
             # Updates Display
             dir = random.randint(1, 4)
