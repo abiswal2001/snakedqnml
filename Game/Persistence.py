@@ -1,5 +1,5 @@
 import pickle
-from Game import Snake
+import Snake
 import pygame
 
 """ Takes the list of moves in the snake game that was played
@@ -7,6 +7,7 @@ import pygame
 def playGUI():
     index = 0
     game = Snake.Snake()
+    game.startGame()
     while index < len(objects):
         # Updates Display
         pygame.display.update()

@@ -31,5 +31,3 @@ class ComputerPlayer():
     def persistence(self):
         with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
             pickle.dump(self.moves, sim_moves)
-
-    
