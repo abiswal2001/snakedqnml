@@ -22,10 +22,12 @@ class ComputerPlayer():
         for _ in range(self.iterations):
             # Updates Display
             dir = random.randint(1, 4)
-            self.moves.append(dir)
+            # self.moves.append(dir) --- NEEDS FIX
             self.game.setDir(dir)
             self.game.updateSnake()
-        self.persistence()
+
+        # Writes all the moves that were made to a file which stores them.
+        # self.persistence() NEEDS TO BE FIXED FOR tensorflow stuff.
 
     """ Sets up persistence of the stored moves."""
     def persistence(self):

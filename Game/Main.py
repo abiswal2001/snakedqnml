@@ -8,8 +8,6 @@ import pygame
 import Snake
 import Player
 
-intro = True
-
 # Creates the snake game.
 game = Snake.Snake()
 
@@ -36,32 +34,44 @@ def clearButtons():
     computer_text = game.font.render("Computer", True, game.white, game.white)
     game.screen.blit(computer_text, computer_text_rect)
 
-""" Starts a game which the player can play. """
+""" Starts a game which the player can play using wasd or arrow keys. """
 def playerGame():
-    # Run the player Game
     Player.Player(game)
 
+""" Runs the computer simulation while closing pygame.
+Writes the moves made by the computer to files. These files can be run using
+the Persistence.py class and it will play a GUI version of the game that the
+computer played. """
 def computerGame():
-    # Runs the computer game
-    print('running')
     pygame.quit()
     game = ComputerSnake.Snake()
     Computer.ComputerPlayer(game)
 
-
+""" Runs the intro sequence until the player clicks one of the buttons to either
+play a player version of the game or run the computer simulation where the computer
+learns how to play snake on its own. The variable intro will be set to False when
+the simulation starts. """
+intro = True
 while intro:
     events = pygame.event.get()
     for event in events:
+        # Event for a mouseclick.
         if event.type == pygame.MOUSEBUTTONUP:
             click = pygame.mouse.get_pos()
+
+            # Checks to see if the click position was on the Player game button.
             if (click[0] > 150 and click[1] > 45 and click[0] < 250 and click[1] < 80):
                 clearButtons()
                 playerGame()
                 intro = False
+
+            # Checks to see if the click position was on the Computer game button.
             elif(click[0] > 520 and click[1] > 45 and click[0] < 680 and click[1] < 80):
                 clearButtons()
                 computerGame()
                 intro = False
+
+        # This is ran if the the window is closed. It closes the window and terminates the program.
         elif event.type == pygame.QUIT:
             intro = False
             pygame.quit()
