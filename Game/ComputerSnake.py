@@ -2,19 +2,71 @@
 
 # Necessary Imports
 import random
+import abc
+import tensorflow as tf
+import numpy as np
 
-class Snake():
+from tf_agents.environments import py_environment
+from tf_agents.environments import tf_environment
+from tf_agents.environments import tf_py_environment
+from tf_agents.environments import utils
+from tf_agents.specs import array_spec
+from tf_agents.environments import wrappers
+from tf_agents.environments import suite_gym
+from tf_agents.trajectories import time_step as ts
+
+tf.compat.v1.enable_v2_behavior()
+
+class Snake(py_environment.PyEnvironment):
     """A class which plays the primary portion of the snake game while
     receiving moves to play from other player classes. """
 
     """ Creates the snake game with the given border limits and
     starts the game. """
+
     def __init__(self):
-        # Aliveness
+        self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int, minimum=1, maximum=4, name='action')
+        self._observation_spec = array_spec.BoundedArraySpec((11,), dtype=np.int, name='observation')
+        self.setup()
+
+    def action_spec(self):
+        return self._action_spec
+
+    def observation_spec(self):
+        return self._observation_spec
+
+    def setup(self):
+        # Initialize Game
+        pygame.init()
+
+        # Change Title of Game
+        pygame.display.set_caption('Snake')
+
+        # Setting up the window
+        self.windowWidth = 800
+        self.windowHeight = 800
+        self.screen = pygame.display.set_mode([self.windowWidth,
+                                               self.windowHeight])
+        self.white = [255, 255, 255]
+        self.black = (0, 0, 0)
+        self.green = (46, 135, 58)
+        self.fruitColor = [255, 0, 0]
+        self.apple = pygame.image.load(os.getcwd() + '/apple.png')
+        self.screen.fill(self.white)
         self.dead = False
+
+        # Draw game border
+        pygame.draw.rect(self.screen, self.black, (95, 95, 610, 610), 5)
+
+        # Main font to be used in this application
+        self.font = pygame.font.Font('freesansbold.ttf', 32)
 
         # Displaying Score
         self.score = 1
+        self.score_text, self.score_text_rect = "", ""
+
+        # Start Timer
+        pygame.time.set_timer(pygame.USEREVENT + 1, 300)
 
         # Default fruit position
         self.fruit = [25, 20]

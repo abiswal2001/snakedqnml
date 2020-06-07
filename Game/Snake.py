@@ -5,6 +5,11 @@ import pygame
 import os
 import random
 
+import pygame
+import os
+import random
+
+
 class Snake():
     """A class which plays the primary portion of the snake game while
     receiving moves to play from other player classes. """
@@ -22,7 +27,7 @@ class Snake():
         self.windowWidth = 800
         self.windowHeight = 800
         self.screen = pygame.display.set_mode([self.windowWidth,
-            self.windowHeight])
+                                               self.windowHeight])
         self.white = [255, 255, 255]
         self.black = (0, 0, 0)
         self.green = (46, 135, 58)
