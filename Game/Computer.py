@@ -3,6 +3,7 @@
 # Necessary imports
 import random
 import pickle
+import ComputerSnake
 
 class ComputerPlayer():
     """ A class which allows the player to play the snake game
@@ -10,13 +11,15 @@ class ComputerPlayer():
 
     def __init__(self, game):
         self.game = game
-        self.moves = []
-        self.playerGame()
 
     """ Creates a game where a player can play snake. """
     def playerGame(self):
-        running = True
-        while self.game.dead is False:
+        envTrain = ComputerSnake.Snake()
+        envEval = ComputerSnake.Snake()
+        utils.validate_py_environment(env, episodes=5)
+        train_env = tf_py_environment.TFPyEnvironment(envTrain)
+        eval_env = tf_py_environment.TFPyEnvironment(envEval)
+        for _ in range(self.iterations):
             # Updates Display
             dir = random.randint(1, 4)
             self.moves.append(dir)

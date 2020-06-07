@@ -25,10 +25,11 @@ class Snake(py_environment.PyEnvironment):
     starts the game. """
 
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int, minimum=1, maximum=4, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec((11,), dtype=np.int, name='observation')
+        self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=1, maximum=4, name='action')
+        self._observation_spec = array_spec.BoundedArraySpec((9,), dtype=np.int32, minimum=[5, 5, 1, 5, 5, 0, 0, 0, 0], maximum=[34, 34, 4, 34, 34, 1, 1, 1, 1], name='observation')
+        self._state = [20, 20, 1, 25, 20, 0, 0, 0, 0]
         self.setup()
-
+        
     def action_spec(self):
         return self._action_spec
 
@@ -74,20 +75,25 @@ class Snake(py_environment.PyEnvironment):
         # Starts a new game
         self.newGame()
 
-    """ Increments the score """
-    def updateScore(self):
-        self.score += 1
 
-    """ Changes the direction that the snake moves in.
-    This essentially represents players playing the game. """
-    def setDir(self, dir):
-        self.dir = dir
+    def _reset(self):
+        self._state = np.array([20, 20, 1, 25, 20, 0, 0, 0, 0], dtype=np.int32)
+        self.dead = False
+        self.newGame()
+        return ts.restart(self._state)
 
-    """ Updates snake every time a certain amount of time passes """
-    def updateSnake(self):
+    def _step(self, action):
+        if self.dead:
+            return self.reset()
+        if action >= 1 and action <= 4:
+            self.setDir(action)
+        else:
+            raise ValueError('action must be between 1 and 4')
+
+        reward = 0.0
+        discount = 0.0
         # Checks to see if the snake head reaches a fruit
         eaten = self.checkFruit()
-
         # Moves the snake based on the current direction
         head = self.snakeBody[0][:]
         if (self.dir == 1):
@@ -103,42 +109,32 @@ class Snake(py_environment.PyEnvironment):
         if (not self.checkLose()):
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
+             # Removes last body part if fruit was not eaten
+            if (not eaten):
+                removed = self.snakeBody.pop()
+                self.openLocations[convertToKey(removed)] = removed
+            # Creates a new fruit if the fruit was eaten and increments score
+            else:
+                self.fruit = self.newFruit()
+                self.updateScore()
+                reward += 5.0
+            danger_arr = self.danger()
+            self._state = np.array([self.head[0], self.head[1], action, self.fruit[0], self.fruit[1], danger[0], danger[1], danger[2], danger[3]], dtype=int32)
+            return ts.transition(self._state, reward, discount=1.0)
         else:
-            return
-        # Removes last body part if fruit was not eaten
-        if (not eaten):
-            removed = self.snakeBody.pop()
-            self.openLocations[convertToKey(removed)] = removed
-
-        # Creates a new fruit if the fruit was eaten and increments score
-        else:
-            self.fruit = self.newFruit()
-            self.updateScore()
-
-    """ Checks to see if the game is over """
-    def checkLose(self):
-        head = self.snakeBody[0]
-
-        # Checks to see if the snake collides without itself or goes out of bounds
-        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
-                or not convertToKey(head) in self.openLocations):
-            print(self.score - 1)
-            self.newGame()
             self.dead = True
-            return True
+            reward -= 10.0
+            return ts.termination(self._state, reward, discount=1.0) 
 
-    """ Checks to see if the snake has eaten a fruit or not """
-    def checkFruit(self):
-        # pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
-        if (self.snakeBody[0] == self.fruit):
-            return True
-        return False
+    """ Danger value based on self-collision and wall collision. 0 for danger, 1 for no danger   """
+    def danger(self):
+        neighborUp = int(convertToKey([head[0], head[1] + 1]) in self.openLocations)
+        neighborDown = int(convertToKey([head[0], head[1] - 1]) in self.openLocations)
+        neighborLeft = int(convertToKey([head[0] - 1, head[1]]) in self.openLocations)
+        neighborRight = int(convertToKey([head[0] + 1, head[1]]) in self.openLocations)
+        return np.array([neighborUp, neighborDown, neighborLeft, neighborRight], dtype=int32)
 
-    """ Returns location of where the next fruit should be. """
-    def newFruit(self):
-        return random.choice(list(self.openLocations.values()))
-
-    """ Creates a new game with the snake and fruit in the default positions. """
+     """ Creates a new game with the snake and fruit in the default positions. """
     def newGame(self):
         # Displays initial score of 0
         self.updateScore()
@@ -157,6 +153,46 @@ class Snake(py_environment.PyEnvironment):
 
         # Default direction which the snake will be moving in
         self.dir = 1
+        self.dead = False
+        
+        
+    """ Increments the score """
+    def updateScore(self):
+        self.score += 1
+
+    """ Changes the direction that the snake moves in.
+    This essentially represents players playing the game. """
+    def setDir(self, dir):
+        self.dir = dir
+
+    """ Updates snake every time a certain amount of time passes """
+    def updateSnake(self):
+        
+
+    """ Checks to see if the game is over """
+    def checkLose(self):
+        head = self.snakeBody[0]
+
+        # Checks to see if the snake collides without itself or goes out of bounds
+        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
+                or not convertToKey(head) in self.openLocations):
+            print(self.score - 1)
+            self._reset()
+            self.dead = True
+            return True
+
+    """ Checks to see if the snake has eaten a fruit or not """
+    def checkFruit(self):
+        # pygame.draw.rect(screen, fruitColor, (fruit[0] * 20, fruit[1] * 20, 18, 18), 0)
+        if (self.snakeBody[0] == self.fruit):
+            return True
+        return False
+
+    """ Returns location of where the next fruit should be. """
+    def newFruit(self):
+        return random.choice(list(self.openLocations.values()))
+
+   
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
