@@ -17,13 +17,13 @@ def playGUI():
         # Handles events
         for i in pygame.event.get():
             if i.type == pygame.USEREVENT + 1:
-                game.updateSnake()
                 game.setDir(objects[index])
+                game.updateSnake()
+                index += 1
             # Quitting out of the game
             elif i.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-        index += 1
 
 objects = []
 with (open("Simulations/simulation1test.txt", "rb")) as openfile:

@@ -4,7 +4,22 @@
 import random
 import pickle
 import ComputerSnake
-import utils
+# import utils
+
+# Importing tf agents
+import tensorflow as tf
+
+from tf_agents.agents.dqn import dqn_agent
+from tf_agents.drivers import dynamic_step_driver
+from tf_agents.environments import suite_gym
+from tf_agents.environments import tf_py_environment
+from tf_agents.eval import metric_utils
+from tf_agents.metrics import tf_metrics
+from tf_agents.networks import q_network
+from tf_agents.policies import random_tf_policy
+from tf_agents.replay_buffers import tf_uniform_replay_buffer
+from tf_agents.trajectories import trajectory
+from tf_agents.utils import common
 
 num_iterations = 20000 
 
@@ -24,7 +39,7 @@ eval_interval = 1000
 def simulate():
     envTrain = ComputerSnake.Snake()
     envEval = ComputerSnake.Snake()
-    #utils.validate_py_environment(env, episodes=5)
+    # utils.validate_py_environment(env, episodes=5)
     train_env = tf_py_environment.TFPyEnvironment(envTrain)
     eval_env = tf_py_environment.TFPyEnvironment(envEval)
     fc_layer_params = (100,)
@@ -47,6 +62,7 @@ def simulate():
     eval_policy = agent.policy
     collect_policy = agent.collect_policy
     random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),train_env.action_spec())
+    print(compute_avg_return(eval_env, random_policy, num_eval_episodes))
     
 def compute_avg_return(environment, policy, num_episodes=10):
   total_return = 0.0
