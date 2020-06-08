@@ -125,7 +125,7 @@ class Snake(py_environment.PyEnvironment):
                 reward += 5.0
 
             danger_arr = self.danger()
-            self._state = np.array([self.head[0], self.head[1], action, self.fruit[0], self.fruit[1], danger[0], danger[1], danger[2], danger[3]], dtype=int32)
+            self._state = np.array([head[0], head[1], action, self.fruit[0], self.fruit[1], danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
             return ts.transition(self._state, reward, discount=1.0)
 
         # If the snake has lost the game, this is ran
@@ -138,11 +138,12 @@ class Snake(py_environment.PyEnvironment):
     0 for danger, 1 for no danger. Returns an array which has
     stored all those danger values."""
     def danger(self):
+        head = self.snakeBody[0][:]
         neighborUp = int(convertToKey([head[0], head[1] + 1]) in self.openLocations)
         neighborDown = int(convertToKey([head[0], head[1] - 1]) in self.openLocations)
         neighborLeft = int(convertToKey([head[0] - 1, head[1]]) in self.openLocations)
         neighborRight = int(convertToKey([head[0] + 1, head[1]]) in self.openLocations)
-        return np.array([neighborUp, neighborDown, neighborLeft, neighborRight], dtype=int32)
+        return np.array([neighborUp, neighborDown, neighborLeft, neighborRight], dtype=np.int32)
 
     """ Increments the score """
     def updateScore(self):

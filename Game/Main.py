@@ -3,7 +3,6 @@ program or it allows the player to play snake. """
 
 # Necessary imports
 import Computer
-import ComputerSnake
 import pygame
 import Snake
 import Player
@@ -44,8 +43,7 @@ the Persistence.py class and it will play a GUI version of the game that the
 computer played. """
 def computerGame():
     pygame.quit()
-    game = ComputerSnake.Snake()
-    Computer.ComputerPlayer(game)
+    Computer.simulate()
 
 """ Runs the intro sequence until the player clicks one of the buttons to either
 play a player version of the game or run the computer simulation where the computer
