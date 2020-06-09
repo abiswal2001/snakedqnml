@@ -5,10 +5,6 @@ import pygame
 import os
 import random
 
-import pygame
-import os
-import random
-
 
 class Snake():
     """A class which plays the primary portion of the snake game while
@@ -56,9 +52,6 @@ class Snake():
         # Starts a new game
         self.newGame()
 
-        # Prints the snake and the apples
-        self.updateSnake()
-
     """ Updates score text at the top of the screen and adds one to the score """
     def updateScore(self):
         self.score_text = self.font.render('Total Score: ' +
@@ -99,7 +92,7 @@ class Snake():
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
         else:
-
+            # Exits from the method if the game is over and starts a new game.
             return
 
         # Removes last body part if fruit was not eaten
@@ -177,10 +170,13 @@ class Snake():
         # Default direction which the snake will be moving in
         self.dir = 1
 
+        # Prints the snake to the board
+        self.updateSnake()
+
     """ Starts the actual snake game."""
     def startGame(self):
         # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 300)
+        pygame.time.set_timer(pygame.USEREVENT + 1, 100)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):

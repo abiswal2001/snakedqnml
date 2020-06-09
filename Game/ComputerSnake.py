@@ -24,10 +24,15 @@ class Snake(py_environment.PyEnvironment):
     receiving moves to play from other player classes. """
 
     """ Setup for the simulation which will run multiple games."""
-    def __init__(self):
+    def __init__(self, num_iterations = 20000):
         self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=0, maximum=3, name='action')
         self._observation_spec = array_spec.BoundedArraySpec((9,), dtype=np.int32, minimum=[5, 5, 0, 5, 5, 0, 0, 0, 0], maximum=[34, 34, 4, 34, 34, 1, 1, 1, 1], name='observation')
         self._state = [20, 20, 0, 25, 20, 0, 0, 0, 0]
+        self.max_iterations = num_iterations - 1
+        self.move_limit = 500
+        self.curr_moves = 0
+        self.num_games = 0
+        self.all_moves = []
         self.newGame()
 
     def action_spec(self):
@@ -61,6 +66,9 @@ class Snake(py_environment.PyEnvironment):
 
         # List of all the moves
         self.moves = []
+        
+        # Sets the number of moves for this turn to 0
+        self.curr_moves = 0
 
 
     """ Restarts the game with the initial conditions of the snake and fruit.
@@ -73,7 +81,12 @@ class Snake(py_environment.PyEnvironment):
         self.dead = False
 
         # Writes the moves to the persistence file so we can see what the computer did later.
-        self.persistence()
+        if (self.moves):
+           self.all_moves.append(self.moves)
+           self.persistence()
+
+        # Increments num_games because a game just ended.
+        self.num_games += 1
 
         # Resets the parameters of the snake to the initial parameters
         self.newGame()
@@ -118,15 +131,19 @@ class Snake(py_environment.PyEnvironment):
         # Up
         else:
             head[1] += 1
+
+        # Adds to the number of moves after a move is made.
+        self.curr_moves += 1
         
         # Adds the next move to the list of all the moves that were made.
-        self.moves.append(self.dir)
+        if (self.num_games % 1000 == 0):
+            self.moves.append(self.dir)
 
         # Inserts the new head as the first item of snakeBody to represent a move.
         self.snakeBody.insert(0, head)
 
         # Only continues if game has not ended
-        if (not self.checkLose()):
+        if (not self.checkLose() and (self.curr_moves < self.move_limit)):
             # Removes head from openLocations to represent that that square is taken.
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
@@ -149,8 +166,10 @@ class Snake(py_environment.PyEnvironment):
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward -= 10.0
-            return ts.termination(self._state, reward)
+            reward -= 10
+            tempState = self._state[:]
+            self._reset()
+            return ts.termination(tempState, reward)
 
     """ Danger value based on self-collision and wall collision.
     0 for danger, 1 for no danger. Returns an array which has
@@ -179,7 +198,6 @@ class Snake(py_environment.PyEnvironment):
         # Checks to see if the snake collides without itself or goes out of bounds
         if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
                 or not convertToKey(head) in self.openLocations):
-            self._reset()
             self.dead = True
             return True
 
@@ -195,7 +213,7 @@ class Snake(py_environment.PyEnvironment):
     """ Sets up persistence of the stored moves."""
     def persistence(self):
         with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
-            pickle.dump(self.moves, sim_moves)
+            pickle.dump(self.all_moves, sim_moves)
 
 """ Converts a given location to a key for openLocations dictionary. 
 NOT A CLASS METHOD!"""
