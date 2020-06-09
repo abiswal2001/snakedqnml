@@ -12,7 +12,6 @@ def playGUI():
     listIndex, index = 0, 0
     game = Snake.Snake()
     game.startGame()
-    print(objects)
     for moves in objects:
         while index < len(moves):
             # Updates Display
@@ -20,7 +19,7 @@ def playGUI():
             # Handles events
             for i in pygame.event.get():
                 if i.type == pygame.USEREVENT + 1:
-                    # Changes direction of snake and makes 
+                    # Changes direction of snake and makes
                     # a move for the snake in that direction.
                     game.setDir(moves[index])
                     game.updateSnake()

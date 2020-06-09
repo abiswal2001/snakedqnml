@@ -66,7 +66,7 @@ class Snake(py_environment.PyEnvironment):
 
         # List of all the moves
         self.moves = []
-        
+
         # Sets the number of moves for this turn to 0
         self.curr_moves = 0
 
@@ -96,7 +96,7 @@ class Snake(py_environment.PyEnvironment):
 
     """ Method which is called on when the snake is going to make a move. """
     def _step(self, action):
-        # Starts a new game if the snake is 
+        # Starts a new game if the snake is
         action = action + 1
         if self.dead:
             return self.reset()
@@ -134,7 +134,7 @@ class Snake(py_environment.PyEnvironment):
 
         # Adds to the number of moves after a move is made.
         self.curr_moves += 1
-        
+
         # Adds the next move to the list of all the moves that were made.
         if (self.num_games % 1000 == 0):
             self.moves.append(self.dir)
@@ -143,7 +143,7 @@ class Snake(py_environment.PyEnvironment):
         self.snakeBody.insert(0, head)
 
         # Only continues if game has not ended
-        if (not self.checkLose() and (self.curr_moves < self.move_limit)):
+        if ((not self.checkLose()) and (self.curr_moves < self.move_limit)):
             # Removes head from openLocations to represent that that square is taken.
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
@@ -215,7 +215,7 @@ class Snake(py_environment.PyEnvironment):
         with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
             pickle.dump(self.all_moves, sim_moves)
 
-""" Converts a given location to a key for openLocations dictionary. 
+""" Converts a given location to a key for openLocations dictionary.
 NOT A CLASS METHOD!"""
 def convertToKey(location):
     return location[0] - 5 + 30 * (location[1] - 5)
