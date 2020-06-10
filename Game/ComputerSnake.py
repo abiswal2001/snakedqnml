@@ -35,6 +35,7 @@ class Snake(py_environment.PyEnvironment):
         self.num_games = -1
         self.fruit_locations = []
         self.all_moves = []
+        self.all = []
         self.newGame()
 
     def action_spec(self):
@@ -68,6 +69,10 @@ class Snake(py_environment.PyEnvironment):
 
         # List of all the moves
         self.moves = []
+
+        # Creates an array with all the fruit locations stored
+        self.fruit_locations = []
+        self.fruit_locations.append(self.fruit)
 
         # Sets the number of moves for this turn to 0
         self.curr_moves = 0
