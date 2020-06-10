@@ -26,23 +26,23 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 """ SIMULATION VARIABLES
 
 Number of iterations the simulation runs """
-num_iterations = 1000
+num_iterations = 50000
 
 """ Initial amount of data points """
 initial_collect_steps = 1000
 
 """ Data collected each time the simulation is run """
-collect_steps_per_iteration = 100
+collect_steps_per_iteration = 1
 
 """ """
 replay_buffer_max_length = 100000
 
 batch_size = 64
 learning_rate = 1e-3
-log_interval = 10
+log_interval = 1000
 
-num_eval_episodes = 10
-eval_interval = 10
+num_eval_episodes = 5
+eval_interval = 2000
 
 
 """ Creates a game the computer can simulate snake. """
@@ -110,7 +110,7 @@ def simulate():
     returns = [avg_return]
 
     # We initially fill the replay buffer with 100 trajectories to help the assistant
-    collect_data(train_env, random_policy, replay_buffer, steps=100)
+    collect_data(train_env, random_policy, replay_buffer, steps=2000)
 
     # Here, we run the simulation to train the agent
     for _ in range(num_iterations):
@@ -127,7 +127,7 @@ def simulate():
 
         # Prints the training loss every 200 steps
         if step % log_interval == 0:
-            print('step = {0}: loss = {1}'.format(step, train_loss))
+           print('step = {0}'.format(step))
 
         # Evaluates the agent's policy every 1000 steps and prints results
         if step % eval_interval == 0:

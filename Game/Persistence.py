@@ -13,7 +13,8 @@ def playGUI():
     game = Snake.Snake()
     game.startGame()
     print(len(objects))
-    for moves in objects:
+    for i in range(50, len(objects)):
+        moves = objects[i]
         while index < len(moves):
             # Updates Display
             pygame.display.update()

@@ -171,7 +171,7 @@ class Snake():
         self.dir = 1
 
         # Move limits for the computer version of the simulation
-        self.move_limit = 500
+        self.move_limit = 1000
         self.curr_moves = 0
 
         # Prints the snake to the board
@@ -180,7 +180,7 @@ class Snake():
     """ Starts the actual snake game."""
     def startGame(self):
         # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 50)
+        pygame.time.set_timer(pygame.USEREVENT + 1, 10)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):

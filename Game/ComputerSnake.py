@@ -6,6 +6,7 @@ import abc
 import tensorflow as tf
 import numpy as np
 import pickle
+import math
 
 # Importing tf agents
 from tf_agents.environments import py_environment
@@ -26,12 +27,13 @@ class Snake(py_environment.PyEnvironment):
     """ Setup for the simulation which will run multiple games."""
     def __init__(self, num_iterations = 20000):
         self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=0, maximum=3, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec((9,), dtype=np.int32, minimum=[5, 5, 0, 5, 5, 0, 0, 0, 0], maximum=[34, 34, 4, 34, 34, 1, 1, 1, 1], name='observation')
-        self._state = [20, 20, 0, 25, 20, 0, 0, 0, 0]
+        self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[4, 1, 1, 1, 1, 1, 1], name='observation')
+        self._state = [0, 1, 0, 1, 1, 1, 1]
         self.max_iterations = num_iterations - 1
-        self.move_limit = 500
+        self.move_limit = 1000
         self.curr_moves = 0
         self.num_games = -1
+        self.fruit_locations = []
         self.all_moves = []
         self.newGame()
 
@@ -75,13 +77,13 @@ class Snake(py_environment.PyEnvironment):
     Also (reset)s the state variable to represent the current locations. """
     def _reset(self):
         # Resets the state to the initial state
-        self._state = np.array([20, 20, 1, 25, 20, 0, 0, 0, 0], dtype=np.int32)
+        self._state = np.array([0, 1, 0, 1, 1, 1, 1], dtype=np.int32)
 
         # Makes the snake alive again
         self.dead = False
 
         # Writes the moves to the persistence file so we can see what the computer did later.
-        if (self.moves):
+        if ((self.num_games % 10 == 0) or self.score >= 4):
            self.all_moves.append(self.moves)
            self.persistence()
 
@@ -119,6 +121,9 @@ class Snake(py_environment.PyEnvironment):
         # Moves the snake based on the current direction. Head is a copy
         #(different pointer) of the array in snakeBody[0].
         head = self.snakeBody[0][:]
+
+        oldDistance = self.fruitDistance(head)
+
         # Right
         if (self.dir == 1):
             head[0] += 1
@@ -135,9 +140,16 @@ class Snake(py_environment.PyEnvironment):
         # Adds to the number of moves after a move is made.
         self.curr_moves += 1
 
+        newDistance = self.fruitDistance(head)
+
+        # Distance reward, not sure if it worked or not.
+        """ if (newDistance < oldDistance):
+            reward -= 0.5
+        elif (newDistance > oldDistance):
+            reward += 0.5 """
+            
         # Adds the next move to the list of all the moves that were made.
-        if (self.num_games % 10 == 0):
-            self.moves.append(self.dir)
+        self.moves.append(self.dir)
 
         # Inserts the new head as the first item of snakeBody to represent a move.
         self.snakeBody.insert(0, head)
@@ -152,38 +164,70 @@ class Snake(py_environment.PyEnvironment):
             if (not eaten):
                 removed = self.snakeBody.pop()
                 self.openLocations[convertToKey(removed)] = removed
-                reward -= 5
 
             # Creates a new fruit if the fruit was eaten and increments score and reward.
             else:
                 self.fruit = self.newFruit()
                 self.updateScore()
-                reward += 5000.0
-
-            # Array of the current danger conditions based on the location of the snake head.
-            danger_arr = self.danger()
+                reward -= 10.0
 
             # Assign the state to be the new state based on the snake head's new location
-            self._state = np.array([head[0], head[1], action - 1, self.fruit[0], self.fruit[1],
-                danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
+            fruit_dir_arr = self.dirFruit()
+            # Array of the current danger conditions based on the location of the snake head.
+            danger_arr = self.danger(action)
+            self._state = np.array([action - 1, fruit_dir_arr[0], fruit_dir_arr[1], danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
             return ts.transition(self._state, reward, discount=1.0)
 
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward = -1000.0
+            reward += 5.0
             return ts.termination(self._state, reward)
+
+
+    """ Calculates direction of fruit, returns array storing horiz, vert direction. Follows cartesian plane conventions """
+    def dirFruit(self):
+        retDir = [0, 0]
+        head = self.snakeBody[0][:]
+        fruit = self.fruit[:]
+        if head[0] < fruit[0]:
+            retDir[0] = 1
+        elif head[0] > fruit[0]:
+            retDir[0] = -1
+        if head[1] < fruit[1]:
+            retDir[1] = 1
+        elif head[1] > fruit[1]:
+            retDir[1] = -1
+        return retDir
+
+    """ Returns direction in which the snake will self-destruct, if snake length is longer than 1 """
+    def dangerDir(self, currD):
+        #if len(self.snakeBody) < 2:
+        #    return -1
+        if currD == 1:
+            return 2
+        elif currD == 2:
+            return 1
+        elif currD == 3:
+            return 4
+        elif currD == 4:
+            return 3
+
 
     """ Danger value based on self-collision and wall collision.
     0 for danger, 1 for no danger. Returns an array which has
     stored all those danger values."""
-    def danger(self):
+    def danger(self, currD):
         head = self.snakeBody[0][:]
         neighborUp = int(convertToKey([head[0], head[1] + 1]) in self.openLocations)
         neighborDown = int(convertToKey([head[0], head[1] - 1]) in self.openLocations)
         neighborLeft = int(convertToKey([head[0] - 1, head[1]]) in self.openLocations)
         neighborRight = int(convertToKey([head[0] + 1, head[1]]) in self.openLocations)
-        return np.array([neighborUp, neighborDown, neighborLeft, neighborRight], dtype=np.int32)
+        selfDestructDir = self.dangerDir(currD)
+        arr = [neighborRight, neighborLeft, neighborDown, neighborUp]
+        #if selfDestructDir > -1:
+        arr[selfDestructDir - 1] = 0
+        return np.array(arr, dtype=np.int32)
 
     """ Increments the score """
     def updateScore(self):
@@ -203,6 +247,9 @@ class Snake(py_environment.PyEnvironment):
                 or not convertToKey(head) in self.openLocations):
             self.dead = True
             return True
+    
+    def fruitDistance(self, head):
+        return math.sqrt((head[0] - self.fruit[0])**2 + (head[1] - self.fruit[1])**2)
 
     """ Checks to see if the snake has eaten a fruit or not """
     def checkFruit(self):
