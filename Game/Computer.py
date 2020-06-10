@@ -111,6 +111,7 @@ def simulate():
 
     # We initially fill the replay buffer with 100 trajectories to help the assistant
     collect_data(train_env, random_policy, replay_buffer, steps=2000)
+    train_env.reset()
 
     # Here, we run the simulation to train the agent
     for _ in range(num_iterations):
