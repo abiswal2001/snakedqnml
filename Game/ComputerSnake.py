@@ -48,16 +48,16 @@ class Snake(py_environment.PyEnvironment):
     """ Creates a new game with the snake and fruit in the default positions. """
     def newGame(self):
         # Snake Body which only contains the head at this point
-        self.snakeBody = [[20, 20]]
+        self.snakeBody = [[15, 15]]
 
         # Initial Fruit Location
-        self.fruit = [25, 20]
+        self.fruit = [20, 15]
 
         # A dictionary which contains all possible locations that a fruit can be at.
         self.openLocations = {}
-        for i in range(30):
-            for j in range(30):
-                self.openLocations[i + 30 * j] = [i + 5, j + 5]
+        for i in range(20):
+            for j in range(20):
+                self.openLocations[i + 400 * j] = [i + 5, j + 5]
 
         # Default direction which the snake will be moving in
         self.dir = 1
@@ -154,11 +154,11 @@ class Snake(py_environment.PyEnvironment):
         newDistance = self.fruitDistance(head)
 
         # Distance reward, not sure if it worked or not.
-        """ if (newDistance < oldDistance):
+        if (newDistance < oldDistance):
             reward += 0.5
         elif (newDistance >= oldDistance):
-            reward -= 0.6 """
-            
+            reward -= 0.6 
+
         # Adds the next move to the list of all the moves that were made.
         self.moves.append(self.dir)
 
@@ -181,7 +181,7 @@ class Snake(py_environment.PyEnvironment):
                 self.fruit = self.newFruit()
                 self.fruit_locations.append(self.fruit[:])
                 self.updateScore()
-                reward += 1.0
+                reward -= 50.0
 
             # Assign the state to be the new state based on the snake head's new location
             fruit_dir_arr = self.dirFruit()
@@ -193,7 +193,7 @@ class Snake(py_environment.PyEnvironment):
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward -= 1.0
+            reward += 10.0
             return ts.termination(self._state, reward)
 
 
@@ -229,9 +229,9 @@ class Snake(py_environment.PyEnvironment):
     def checkSelfCollision(self):
         body = self.snakeBody[:]
         head = self.snakeBody[0][:]
-        
+
         #arr = [neighborRight, neighborLeft, neighborDown, neighborUp]
-    
+
     """ Danger value based on self-collision and wall collision.
     0 for danger, 1 for no danger. Returns an array which has
     stored all those danger values."""
@@ -264,7 +264,7 @@ class Snake(py_environment.PyEnvironment):
         if (not convertToKey(head) in self.openLocations):
             self.dead = True
             return True
-    
+
     def fruitDistance(self, head):
         return math.sqrt((head[0] - self.fruit[0])**2 + (head[1] - self.fruit[1])**2)
 
@@ -285,4 +285,4 @@ class Snake(py_environment.PyEnvironment):
 """ Converts a given location to a key for openLocations dictionary.
 NOT A CLASS METHOD!"""
 def convertToKey(location):
-    return location[0] - 5 + 30 * (location[1] - 5)
+    return location[0] - 5 + 400 * (location[1] - 5)
