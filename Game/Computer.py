@@ -4,6 +4,8 @@
 import random
 import pickle
 import ComputerSnake
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 """ Importing tf agents """
@@ -26,7 +28,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 """ SIMULATION VARIABLES
 
 Number of iterations the simulation runs """
-num_iterations = 1000000
+num_iterations = 30000
 
 """ Initial amount of data points """
 initial_collect_steps = 1000
@@ -107,14 +109,15 @@ def simulate():
 
     # Evaluate the agent's policy once before training.
     avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-    returns = [avg_return]
 
     # We initially fill the replay buffer with 100 trajectories to help the assistant
     collect_data(train_env, random_policy, replay_buffer, steps=5000)
     train_env.reset()
 
     # Here, we run the simulation to train the agent
-    for _ in range(num_iterations):
+    scores_list = []
+    num_steps_arr = []
+    for currStep in range(num_iterations):
         # Collect a few steps using collect_policy and save to the replay buffer.
         for _ in range(collect_steps_per_iteration):
             collect_step(train_env, agent.collect_policy, replay_buffer)
@@ -126,16 +129,28 @@ def simulate():
         # Number of training steps so far
         step = agent.train_step_counter.numpy()
 
-        # Prints the training loss every 200 steps
+        # Prints every 1000 steps made by the training agent
         if step % log_interval == 0:
            print('Moves made = {0}'.format(step))
 
-        # Evaluates the agent's policy every 1000 steps and prints results
+        # Evaluates the agent's policy every 5000 steps, prints results, 
+        # ands saves the results for later so they can be plotted
         if step % eval_interval == 0:
-            avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-            print('step = {0}: Average Return = {1}'.format(step, avg_return))
-            returns.append(avg_return)
-
+          avg_return = 0
+          for i in range(num_eval_episodes):
+              curr_return = compute_avg_return(eval_env, agent.policy, 1)
+              scores_list.append(curr_return)
+              num_steps_arr.append(currStep)
+              avg_return += curr_return
+          avg_return = avg_return/num_eval_episodes
+          print('step = {0}: Average Return = {1}'.format(step, avg_return))
+    plt.scatter(num_steps_arr, scores_list)
+    plt.xlabel('Number of Steps Trained')
+    plt.ylabel('Score')
+    plt.title('Snake Reinforcement Learning')
+    plt.show()
+    
+      
 """ Computes the average reward of an policy with specified environment and trials.
 This method plays out NUM_EPISODES number of full games of snake to get the average return.
 This does not play a certain number of games of snake to get the return. """

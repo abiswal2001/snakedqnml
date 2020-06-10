@@ -29,9 +29,9 @@ class Snake(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=0, maximum=3, name='action')
         self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[3, 1, 1, 1, 1, 1, 1], name='observation')
         self._state = [0, 1, 0, 1, 1, 1, 1]
-        self.move_limit = 100000
+        self.move_limit = 10000
         self.curr_moves = 0
-        self.num_games = -1
+        self.num_games = 1
         self.fruit_locations = []
         self.all_fruit = []
         self.all_moves = []
@@ -133,8 +133,6 @@ class Snake(py_environment.PyEnvironment):
         #(different pointer) of the array in snakeBody[0].
         head = self.snakeBody[0][:]
 
-        oldDistance = self.fruitDistance(head)
-
         # Right
         if (self.dir == 1):
             head[0] += 1
@@ -150,9 +148,6 @@ class Snake(py_environment.PyEnvironment):
 
         # Adds to the number of moves after a move is made.
         self.curr_moves += 1
-
-        # Gets the distance from the new head to the fruit location.
-        newDistance = self.fruitDistance(head)
 
         # Adds the next move to the list of all the moves that were made.
         self.moves.append(self.dir)
@@ -176,7 +171,9 @@ class Snake(py_environment.PyEnvironment):
                 self.fruit = self.newFruit()
                 self.fruit_locations.append(self.fruit[:])
                 self.updateScore()
-                reward += 10.0
+
+                # Reward is one point for eating a fruit
+                reward += 1.0
 
             # Assign the state to be the new state based on the snake head's new location
             fruit_dir = self.dirFruit()
@@ -189,7 +186,9 @@ class Snake(py_environment.PyEnvironment):
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward -= 20.0
+
+            # Subtract 2 points from reward for dying
+            reward -= 2.0
             return ts.termination(self._state, reward)
 
 
@@ -260,4 +259,6 @@ class Snake(py_environment.PyEnvironment):
 """ Converts a given location to a key for openLocations dictionary.
 NOT A CLASS METHOD!"""
 def convertToKey(location):
+    # Equation for key makes sure that no location 
+    # can have the same key as another location.
     return location[0] - 5 + 400 * (location[1] - 5)
