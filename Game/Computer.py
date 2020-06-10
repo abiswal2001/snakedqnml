@@ -49,7 +49,7 @@ eval_interval = 10000
 def simulate():
     # Set up the environments for the agent to train and test its performance
     envTrain = ComputerSnake.Snake()
-    envEval = ComputerSnake.Snake()
+    envEval = ComputerSnake.Snake(persistence = True)
 
     # Convert and wrap in TFPyEnvironment training and evaluation environments
     train_env = tf_py_environment.TFPyEnvironment(envTrain)

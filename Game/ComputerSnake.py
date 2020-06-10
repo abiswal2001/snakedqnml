@@ -25,17 +25,18 @@ class Snake(py_environment.PyEnvironment):
     receiving moves to play from other player classes. """
 
     """ Setup for the simulation which will run multiple games."""
-    def __init__(self):
+    def __init__(self, persistence = False):
         self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=0, maximum=3, name='action')
         self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[3, 1, 1, 1, 1, 1, 1], name='observation')
         self._state = [0, 1, 0, 1, 1, 1, 1]
-        self.move_limit = 10000
+        self.move_limit = 100000
         self.curr_moves = 0
         self.num_games = -1
         self.fruit_locations = []
         self.all_fruit = []
         self.all_moves = []
         self.all = [self.all_moves, self.all_fruit]
+        self.keepPersistence = persistence
         self.newGame()
 
     def action_spec(self):
@@ -89,13 +90,13 @@ class Snake(py_environment.PyEnvironment):
 
         # Writes the moves to the persistence file so we can see what the computer did later.
         # Also prints the score every couple of rounds.
-        if (self.score > 20):
+        if (self.keepPersistence):
             self.all_moves.append(self.moves)
             self.all_fruit.append(self.fruit_locations)
             self.persistence()
 
             # Prints score at the end of every game
-            print("After " + str(self.num_games) + " games --> Score: " + str(self.score))
+            print("After evaluating for " + str(self.num_games) + " games --> Score: " + str(self.score))
 
         # Increments num_games because a game just ended.
         self.num_games += 1
