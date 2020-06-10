@@ -5,6 +5,7 @@ import pygame
 import os
 import random
 
+
 class Snake():
     """A class which plays the primary portion of the snake game while
     receiving moves to play from other player classes. """
@@ -22,10 +23,11 @@ class Snake():
         self.windowWidth = 800
         self.windowHeight = 800
         self.screen = pygame.display.set_mode([self.windowWidth,
-            self.windowHeight])
+                                               self.windowHeight])
         self.white = [255, 255, 255]
         self.black = (0, 0, 0)
         self.green = (46, 135, 58)
+        self.red = (255, 0, 0)
         self.fruitColor = [255, 0, 0]
         self.apple = pygame.image.load(os.getcwd() + '/apple.png')
         self.screen.fill(self.white)
@@ -41,11 +43,12 @@ class Snake():
         self.score = 1
         self.score_text, self.score_text_rect = "", ""
 
-        # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 300)
-
-        # Default fruit position
+        # Default fruit position + Default fruit array
         self.fruit = [25, 20]
+        self.fruit_index = 0
+
+        # Snake Body
+        self.snakeBody = [[19, 20]]
 
         # Starts a new game
         self.newGame()
@@ -90,7 +93,7 @@ class Snake():
             key = convertToKey(head)
             self.openLocations.pop(convertToKey(head))
         else:
-
+            # Exits from the method if the game is over and starts a new game.
             return
 
         # Removes last body part if fruit was not eaten
@@ -117,7 +120,7 @@ class Snake():
 
         # Checks to see if the snake collides without itself or goes out of bounds
         if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
-                or not convertToKey(head) in self.openLocations):
+                or not convertToKey(head) in self.openLocations or self.curr_moves > self.move_limit):
             print(self.score - 1)
             self.newGame()
             self.dead = True
@@ -142,7 +145,8 @@ class Snake():
 
     """ Returns location of where the next fruit should be. """
     def newFruit(self):
-        return random.choice(list(self.openLocations.values()))
+        self.fruit_index += 1
+        return self.fruit_locations[self.fruit_index]
 
     """ Creates a new game with the snake and fruit in the default positions. """
     def newGame(self):
@@ -150,10 +154,11 @@ class Snake():
         self.eraseFruit()
 
         # Displays initial score of 0
+        self.score = 1
         self.updateScore()
 
         # Snake Body
-        self.snakeBody = [[20, 20]]
+        self.snakeBody = [[19, 20]]
 
         # Initial Fruit Location
         self.fruit = [25, 20]
@@ -166,6 +171,21 @@ class Snake():
 
         # Default direction which the snake will be moving in
         self.dir = 1
+
+        # Move limits for the computer version of the simulation
+        self.move_limit = 1000
+        self.curr_moves = 0
+
+        # Prints the snake to the board
+        self.updateSnake()
+
+        # Reset the fruit index
+        self.fruit_index = 0
+
+    """ Starts the actual snake game."""
+    def startGame(self):
+        # Start Timer
+        pygame.time.set_timer(pygame.USEREVENT + 1, 25)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
