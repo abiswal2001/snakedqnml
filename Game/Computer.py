@@ -23,26 +23,26 @@ from tf_agents.utils import common
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 
 
-""" SIMULATION VARIABLES 
+""" SIMULATION VARIABLES
 
 Number of iterations the simulation runs """
-num_iterations = 20000 
+num_iterations = 1000
 
 """ Initial amount of data points """
-initial_collect_steps = 1000  
+initial_collect_steps = 1000
 
 """ Data collected each time the simulation is run """
-collect_steps_per_iteration = 1  
+collect_steps_per_iteration = 100
 
 """ """
-replay_buffer_max_length = 100000  
+replay_buffer_max_length = 100000
 
-batch_size = 64  
-learning_rate = 1e-3 
-log_interval = 200  
+batch_size = 64
+learning_rate = 1e-3
+log_interval = 10
 
-num_eval_episodes = 10  
-eval_interval = 1000
+num_eval_episodes = 10
+eval_interval = 10
 
 
 """ Creates a game the computer can simulate snake. """
@@ -50,7 +50,7 @@ def simulate():
     # Set up the environments for the agent to train and test its performance
     envTrain = ComputerSnake.Snake()
     envEval = ComputerSnake.Snake()
-    
+
     # Convert and wrap in TFPyEnvironment training and evaluation environments
     train_env = tf_py_environment.TFPyEnvironment(envTrain)
     eval_env = tf_py_environment.TFPyEnvironment(envEval)
@@ -64,45 +64,53 @@ def simulate():
     )
     optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate) # look up
     train_step_counter = tf.Variable(0)
-    
-    # Set up and initialize the DQN learning agent. It takes in the time_step spec, action spec, the q network, the optimizer, a loss function,
-    # and train_step_counter
+
+    # Set up and initialize the DQN learning agent. It takes in the time_step spec,
+    # action spec, the q network, the optimizer, a loss function, and train_step_counter
     agent = dqn_agent.DqnAgent(
         train_env.time_step_spec(),
         train_env.action_spec(),
         q_network=q_net,
         optimizer=optimizer, # look up
         td_errors_loss_fn=common.element_wise_squared_loss,
-        train_step_counter=train_step_counter 
+        train_step_counter=train_step_counter
     )
     agent.initialize()
 
     # Set up policies the agent can use
     eval_policy = agent.policy
     collect_policy = agent.collect_policy
-    random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),train_env.action_spec())
 
-    agent.train = common.function(agent.train)
-    agent.train_step_counter.assign(0)
-    avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-    returns = [avg_return]
-    
+    # Policy which randomly selects actions for each step
+    random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
+                                                    train_env.action_spec())
+
     #Buffer to store previous states
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
     data_spec=agent.collect_data_spec,
     batch_size=train_env.batch_size,
     max_length=replay_buffer_max_length)
-    
-    # We initially fill the replay buffer with 100 trajectories to help the assistant
-    collect_data(train_env, random_policy, replay_buffer, steps=100)
-    
+
     # Dataset generates trajectories with shape [Bx2x...] This is so that the agent has access to both the current
     # and previous state to compute loss. Parallel calls and prefetching are used to optimize process.
     dataset = replay_buffer.as_dataset(
-        num_parallel_calls=3, 
-        sample_batch_size=batch_size, 
+        num_parallel_calls=3,
+        sample_batch_size=batch_size,
         num_steps=2).prefetch(3)
     iterator = iter(dataset)
+
+    # (Optional) Optimize by wrapping some of the code in a graph using TF function.
+    agent.train = common.function(agent.train)
+
+    # Reset the train step
+    agent.train_step_counter.assign(0)
+
+    # Evaluate the agent's policy once before training.
+    avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+    returns = [avg_return]
+
+    # We initially fill the replay buffer with 100 trajectories to help the assistant
+    collect_data(train_env, random_policy, replay_buffer, steps=100)
 
     # Here, we run the simulation to train the agent
     for _ in range(num_iterations):
@@ -126,28 +134,40 @@ def simulate():
             avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
             print('step = {0}: Average Return = {1}'.format(step, avg_return))
             returns.append(avg_return)
-    
-""" Computes the average reward of an policy with specified environment and trials """ 
+
+""" Computes the average reward of an policy with specified environment and trials.
+This method plays out NUM_EPISODES number of full games of snake to get the average return.
+This does not play a certain number of games of snake to get the return. """
 def compute_avg_return(environment, policy, num_episodes=10):
+  # Total sum of all the returns
   total_return = 0.0
+
+  # Number of games it should run before returning the average_return
   for _ in range(num_episodes):
 
     time_step = environment.reset()
     episode_return = 0.0
 
+    # While the snake is not dead
     while not time_step.is_last():
+      # Gets the next action based on the current state
       action_step = policy.action(time_step)
+
+      # Makes the next action
       time_step = environment.step(action_step.action)
+
+      # Adds the reward of whatever action was made
       episode_return += time_step.reward
     total_return += episode_return
 
+  # Calculate the return, print it, and return it.
   avg_return = total_return / num_episodes
   print(avg_return)
   return avg_return.numpy()[0]
 
 """ Executes a policy in a specified environment and stores replay data in the buffer """
 def collect_step(environment, policy, buffer):
-  time_step = environment.current_time_step() 
+  time_step = environment.current_time_step()
   action_step = policy.action(time_step)
   next_time_step = environment.step(action_step.action)
   traj = trajectory.from_transition(time_step, action_step, next_time_step)
@@ -159,10 +179,3 @@ def collect_step(environment, policy, buffer):
 def collect_data(env, policy, buffer, steps):
   for _ in range(steps):
     collect_step(env, policy, buffer)
-
-
-""" Sets up persistence of the stored moves."""
-def persistence():
-    with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
-        pickle.dump(moves, sim_moves)
-        

@@ -119,7 +119,7 @@ class Snake():
 
         # Checks to see if the snake collides without itself or goes out of bounds
         if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
-                or not convertToKey(head) in self.openLocations):
+                or not convertToKey(head) in self.openLocations or self.curr_moves > self.move_limit):
             print(self.score - 1)
             self.newGame()
             self.dead = True
@@ -170,13 +170,17 @@ class Snake():
         # Default direction which the snake will be moving in
         self.dir = 1
 
+        # Move limits for the computer version of the simulation
+        self.move_limit = 500
+        self.curr_moves = 0
+
         # Prints the snake to the board
         self.updateSnake()
 
     """ Starts the actual snake game."""
     def startGame(self):
         # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 100)
+        pygame.time.set_timer(pygame.USEREVENT + 1, 50)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):

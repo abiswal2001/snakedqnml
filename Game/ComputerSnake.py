@@ -31,7 +31,7 @@ class Snake(py_environment.PyEnvironment):
         self.max_iterations = num_iterations - 1
         self.move_limit = 500
         self.curr_moves = 0
-        self.num_games = 0
+        self.num_games = -1
         self.all_moves = []
         self.newGame()
 
@@ -136,7 +136,7 @@ class Snake(py_environment.PyEnvironment):
         self.curr_moves += 1
 
         # Adds the next move to the list of all the moves that were made.
-        if (self.num_games % 1000 == 0):
+        if (self.num_games % 10 == 0):
             self.moves.append(self.dir)
 
         # Inserts the new head as the first item of snakeBody to represent a move.
@@ -152,24 +152,27 @@ class Snake(py_environment.PyEnvironment):
             if (not eaten):
                 removed = self.snakeBody.pop()
                 self.openLocations[convertToKey(removed)] = removed
+                reward -= 5
 
             # Creates a new fruit if the fruit was eaten and increments score and reward.
             else:
                 self.fruit = self.newFruit()
                 self.updateScore()
-                reward += 5.0
+                reward += 5000.0
 
+            # Array of the current danger conditions based on the location of the snake head.
             danger_arr = self.danger()
-            self._state = np.array([head[0], head[1], action - 1, self.fruit[0], self.fruit[1], danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
+
+            # Assign the state to be the new state based on the snake head's new location
+            self._state = np.array([head[0], head[1], action - 1, self.fruit[0], self.fruit[1],
+                danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
             return ts.transition(self._state, reward, discount=1.0)
 
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward -= 10
-            tempState = self._state[:]
-            self._reset()
-            return ts.termination(tempState, reward)
+            reward = -1000.0
+            return ts.termination(self._state, reward)
 
     """ Danger value based on self-collision and wall collision.
     0 for danger, 1 for no danger. Returns an array which has
