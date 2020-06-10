@@ -44,7 +44,7 @@ learning_rate = 1e-3
 log_interval = 1000
 
 num_eval_episodes = 5
-eval_interval = 10000
+eval_interval = 5000
 
 
 """ Creates a game the computer can simulate snake. """
@@ -133,7 +133,7 @@ def simulate():
         if step % log_interval == 0:
            print('Moves made = {0}'.format(step))
 
-        # Evaluates the agent's policy every 5000 steps, prints results, 
+        # Evaluates the agent's policy every 5000 steps, prints results,
         # ands saves the results for later so they can be plotted
         if step % eval_interval == 0:
           avg_return = 0
@@ -149,8 +149,8 @@ def simulate():
     plt.ylabel('Score')
     plt.title('Snake Reinforcement Learning')
     plt.show()
-    
-      
+
+
 """ Computes the average reward of an policy with specified environment and trials.
 This method plays out NUM_EPISODES number of full games of snake to get the average return.
 This does not play a certain number of games of snake to get the return. """

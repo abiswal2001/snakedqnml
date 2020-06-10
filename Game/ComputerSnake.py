@@ -173,7 +173,7 @@ class Snake(py_environment.PyEnvironment):
                 self.updateScore()
 
                 # Reward is one point for eating a fruit
-                reward += 1.0
+                reward += 10.0
 
             # Assign the state to be the new state based on the snake head's new location
             fruit_dir = self.dirFruit()
@@ -188,7 +188,7 @@ class Snake(py_environment.PyEnvironment):
             self.dead = True
 
             # Subtract 2 points from reward for dying
-            reward -= 2.0
+            reward -= 20.0
             return ts.termination(self._state, reward)
 
 
@@ -259,6 +259,6 @@ class Snake(py_environment.PyEnvironment):
 """ Converts a given location to a key for openLocations dictionary.
 NOT A CLASS METHOD!"""
 def convertToKey(location):
-    # Equation for key makes sure that no location 
+    # Equation for key makes sure that no location
     # can have the same key as another location.
     return location[0] - 5 + 400 * (location[1] - 5)
