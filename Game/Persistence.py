@@ -14,6 +14,7 @@ def playGUI():
     game.startGame()
     all_moves = objects[0]
     all_fruit = objects[1]
+    print(len(all_moves))
     for i in range(len(all_moves)):
         moves = all_moves[i]
         game.fruit_locations = all_fruit[i]

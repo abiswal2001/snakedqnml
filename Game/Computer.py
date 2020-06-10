@@ -26,7 +26,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 """ SIMULATION VARIABLES
 
 Number of iterations the simulation runs """
-num_iterations = 50000
+num_iterations = 100000
 
 """ Initial amount of data points """
 initial_collect_steps = 1000
@@ -42,7 +42,7 @@ learning_rate = 1e-3
 log_interval = 1000
 
 num_eval_episodes = 5
-eval_interval = 2000
+eval_interval = 1000000
 
 
 """ Creates a game the computer can simulate snake. """

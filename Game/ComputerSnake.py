@@ -30,7 +30,7 @@ class Snake(py_environment.PyEnvironment):
         self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[4, 1, 1, 1, 1, 1, 1], name='observation')
         self._state = [0, 1, 0, 1, 1, 1, 1]
         self.max_iterations = num_iterations - 1
-        self.move_limit = 1000
+        self.move_limit = 10000
         self.curr_moves = 0
         self.num_games = -1
         self.fruit_locations = []
@@ -63,7 +63,7 @@ class Snake(py_environment.PyEnvironment):
         self.dir = 1
 
         # Set initial score to 1
-        self.score = 1
+        self.score = 0
 
         # Set the snake to be alive.
         self.dead = False
@@ -88,12 +88,15 @@ class Snake(py_environment.PyEnvironment):
         # Makes the snake alive again
         self.dead = False
 
+        # Prints score at the end of every game
+        print(self.score)
+
         # Writes the moves to the persistence file so we can see what the computer did later.
-        if ((self.num_games % 10 == 0) or self.score >= 4):
-           self.all_moves.append(self.moves)
-           self.all_fruit.append(self.fruit_locations)
-           self.all = [self.all_moves, self.all_fruit]
-           self.persistence()
+        if (self.num_games % 5 == 0):
+            self.all_moves.append(self.moves)
+            self.all_fruit.append(self.fruit_locations)
+            self.all = [self.all_moves, self.all_fruit]
+            self.persistence()
 
         # Increments num_games because a game just ended.
         self.num_games += 1
@@ -152,9 +155,9 @@ class Snake(py_environment.PyEnvironment):
 
         # Distance reward, not sure if it worked or not.
         """ if (newDistance < oldDistance):
-            reward -= 0.5
-        elif (newDistance > oldDistance):
-            reward += 0.5 """
+            reward += 0.5
+        elif (newDistance >= oldDistance):
+            reward -= 0.6 """
             
         # Adds the next move to the list of all the moves that were made.
         self.moves.append(self.dir)
@@ -178,7 +181,7 @@ class Snake(py_environment.PyEnvironment):
                 self.fruit = self.newFruit()
                 self.fruit_locations.append(self.fruit[:])
                 self.updateScore()
-                reward -= 10.0
+                reward += 1.0
 
             # Assign the state to be the new state based on the snake head's new location
             fruit_dir_arr = self.dirFruit()
@@ -190,7 +193,7 @@ class Snake(py_environment.PyEnvironment):
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward += 5.0
+            reward -= 1.0
             return ts.termination(self._state, reward)
 
 
@@ -222,7 +225,13 @@ class Snake(py_environment.PyEnvironment):
         elif currD == 4:
             return 3
 
-
+    """ Checks for self-collision """
+    def checkSelfCollision(self):
+        body = self.snakeBody[:]
+        head = self.snakeBody[0][:]
+        
+        #arr = [neighborRight, neighborLeft, neighborDown, neighborUp]
+    
     """ Danger value based on self-collision and wall collision.
     0 for danger, 1 for no danger. Returns an array which has
     stored all those danger values."""
@@ -252,8 +261,7 @@ class Snake(py_environment.PyEnvironment):
         head = self.snakeBody[0]
 
         # Checks to see if the snake collides without itself or goes out of bounds
-        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
-                or not convertToKey(head) in self.openLocations):
+        if (not convertToKey(head) in self.openLocations):
             self.dead = True
             return True
     

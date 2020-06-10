@@ -185,7 +185,7 @@ class Snake():
     """ Starts the actual snake game."""
     def startGame(self):
         # Start Timer
-        pygame.time.set_timer(pygame.USEREVENT + 1, 10)
+        pygame.time.set_timer(pygame.USEREVENT + 1, 25)
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
