@@ -1,4 +1,4 @@
-""" Simple Snake Game """
+""" Simple Snake Game which is run for persistence."""
 
 # Necessary Imports
 import pygame
@@ -55,10 +55,16 @@ class Snake():
 
     """ Updates score text at the top of the screen and adds one to the score """
     def updateScore(self):
+        # Clears the screen
+        pygame.draw.rect(self.screen, self.white, (0, 0, 700, 100), 5)
+
+        # Updates the text box to have the new text
         self.score_text = self.font.render('Total Score: ' +
             str(self.score), True, self.black, self.white)
         self.score_text_rect = self.score_text.get_rect()
         self.score_text_rect.center = (self.windowWidth // 2, 20)
+
+        # Prints the text to the screen
         self.screen.blit(self.score_text, self.score_text_rect)
         self.score += 1
 

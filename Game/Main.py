@@ -3,12 +3,12 @@ program or it allows the player to play snake. """
 
 # Necessary imports
 import Computer
-import pygame
-import Snake
+import pygame 
 import Player
+import PlayerSnake
 
 # Creates the snake game.
-game = Snake.Snake()
+game = PlayerSnake.Snake()
 
 # Creates rectangle for the player game button
 player_text = game.font.render("Player", True, game.black, game.green)
