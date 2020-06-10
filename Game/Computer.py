@@ -26,7 +26,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 """ SIMULATION VARIABLES
 
 Number of iterations the simulation runs """
-num_iterations = 100000
+num_iterations = 1000000
 
 """ Initial amount of data points """
 initial_collect_steps = 1000
@@ -110,7 +110,7 @@ def simulate():
     returns = [avg_return]
 
     # We initially fill the replay buffer with 100 trajectories to help the assistant
-    collect_data(train_env, random_policy, replay_buffer, steps=2000)
+    collect_data(train_env, random_policy, replay_buffer, steps=5000)
     train_env.reset()
 
     # Here, we run the simulation to train the agent
@@ -128,7 +128,7 @@ def simulate():
 
         # Prints the training loss every 200 steps
         if step % log_interval == 0:
-           print('step = {0}'.format(step))
+           print('Moves made = {0}'.format(step))
 
         # Evaluates the agent's policy every 1000 steps and prints results
         if step % eval_interval == 0:
