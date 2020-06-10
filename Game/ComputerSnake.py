@@ -34,6 +34,7 @@ class Snake(py_environment.PyEnvironment):
         self.curr_moves = 0
         self.num_games = -1
         self.fruit_locations = []
+        self.all_fruit = []
         self.all_moves = []
         self.all = []
         self.newGame()
@@ -72,7 +73,7 @@ class Snake(py_environment.PyEnvironment):
 
         # Creates an array with all the fruit locations stored
         self.fruit_locations = []
-        self.fruit_locations.append(self.fruit)
+        self.fruit_locations.append(self.fruit[:])
 
         # Sets the number of moves for this turn to 0
         self.curr_moves = 0
@@ -90,6 +91,8 @@ class Snake(py_environment.PyEnvironment):
         # Writes the moves to the persistence file so we can see what the computer did later.
         if ((self.num_games % 10 == 0) or self.score >= 4):
            self.all_moves.append(self.moves)
+           self.all_fruit.append(self.fruit_locations)
+           self.all = [self.all_moves, self.all_fruit]
            self.persistence()
 
         # Increments num_games because a game just ended.
@@ -173,6 +176,7 @@ class Snake(py_environment.PyEnvironment):
             # Creates a new fruit if the fruit was eaten and increments score and reward.
             else:
                 self.fruit = self.newFruit()
+                self.fruit_locations.append(self.fruit[:])
                 self.updateScore()
                 reward -= 10.0
 
@@ -268,7 +272,7 @@ class Snake(py_environment.PyEnvironment):
     """ Sets up persistence of the stored moves."""
     def persistence(self):
         with open('Simulations/simulation1test.txt', 'wb') as sim_moves:
-            pickle.dump(self.all_moves, sim_moves)
+            pickle.dump(self.all, sim_moves)
 
 """ Converts a given location to a key for openLocations dictionary.
 NOT A CLASS METHOD!"""

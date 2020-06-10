@@ -12,9 +12,11 @@ def playGUI():
     listIndex, index = 0, 0
     game = Snake.Snake()
     game.startGame()
-    print(len(objects))
-    for i in range(50, len(objects)):
-        moves = objects[i]
+    all_moves = objects[0]
+    all_fruit = objects[1]
+    for i in range(len(all_moves)):
+        moves = all_moves[i]
+        game.fruit_locations = all_fruit[i]
         while index < len(moves):
             # Updates Display
             pygame.display.update()

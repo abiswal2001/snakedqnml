@@ -43,8 +43,9 @@ class Snake():
         self.score = 1
         self.score_text, self.score_text_rect = "", ""
 
-        # Default fruit position
+        # Default fruit position + Default fruit array
         self.fruit = [25, 20]
+        self.fruit_index = 0
 
         # Snake Body
         self.snakeBody = [[19, 20]]
@@ -144,7 +145,8 @@ class Snake():
 
     """ Returns location of where the next fruit should be. """
     def newFruit(self):
-        return random.choice(list(self.openLocations.values()))
+        self.fruit_index += 1
+        return self.fruit_locations[self.fruit_index]
 
     """ Creates a new game with the snake and fruit in the default positions. """
     def newGame(self):
@@ -176,6 +178,9 @@ class Snake():
 
         # Prints the snake to the board
         self.updateSnake()
+
+        # Reset the fruit index
+        self.fruit_index = 0
 
     """ Starts the actual snake game."""
     def startGame(self):
