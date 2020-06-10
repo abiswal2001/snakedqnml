@@ -27,7 +27,7 @@ class Snake(py_environment.PyEnvironment):
     """ Setup for the simulation which will run multiple games."""
     def __init__(self):
         self._action_spec = array_spec.BoundedArraySpec((), dtype=np.int32, minimum=0, maximum=3, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[4, 1, 1, 1, 1, 1, 1], name='observation')
+        self._observation_spec = array_spec.BoundedArraySpec((7,), dtype=np.int32, minimum=[0, -1, -1, 0, 0, 0, 0], maximum=[3, 1, 1, 1, 1, 1, 1], name='observation')
         self._state = [0, 1, 0, 1, 1, 1, 1]
         self.move_limit = 10000
         self.curr_moves = 0
@@ -89,7 +89,7 @@ class Snake(py_environment.PyEnvironment):
 
         # Writes the moves to the persistence file so we can see what the computer did later.
         # Also prints the score every couple of rounds.
-        if (self.num_games % 10 == 0 or self.score > 10):
+        if (self.score > 20):
             self.all_moves.append(self.moves)
             self.all_fruit.append(self.fruit_locations)
             self.persistence()
@@ -183,12 +183,12 @@ class Snake(py_environment.PyEnvironment):
             danger_arr = self.danger(action)
             self._state = np.array([action - 1, fruit_dir[0], fruit_dir[1],
                                    danger_arr[0], danger_arr[1], danger_arr[2], danger_arr[3]], dtype=np.int32)
-            return ts.transition(self._state, reward, discount=.9)
+            return ts.transition(self._state, reward, discount=.8)
 
         # If the snake has lost the game, this is ran
         else:
             self.dead = True
-            reward -= 30.0
+            reward -= 20.0
             return ts.termination(self._state, reward)
 
 

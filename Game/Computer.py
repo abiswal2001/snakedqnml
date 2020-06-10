@@ -42,7 +42,7 @@ learning_rate = 1e-3
 log_interval = 1000
 
 num_eval_episodes = 5
-eval_interval = 1000000
+eval_interval = 10000
 
 
 """ Creates a game the computer can simulate snake. """
