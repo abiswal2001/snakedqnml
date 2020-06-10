@@ -34,21 +34,21 @@ class Snake():
         self.dead = False
 
         # Draw game border
-        pygame.draw.rect(self.screen, self.black, (95, 95, 610, 610), 5)
+        pygame.draw.rect(self.screen, self.black, (145, 145, 610, 610), 5)
 
         # Main font to be used in this application
         self.font = pygame.font.Font('freesansbold.ttf', 32)
 
         # Displaying Score
-        self.score = 1
+        self.score = 0
         self.score_text, self.score_text_rect = "", ""
 
         # Default fruit position + Default fruit array
-        self.fruit = [25, 20]
+        self.fruit = [20, 15]
         self.fruit_index = 0
 
         # Snake Body
-        self.snakeBody = [[19, 20]]
+        self.snakeBody = [[14, 15]]
 
         # Starts a new game
         self.newGame()
@@ -75,7 +75,7 @@ class Snake():
         # Erase previous snake body
         for body in self.snakeBody:
             pygame.draw.rect(self.screen, self.white,
-                (body[0] * 20, body[1] * 20, 18, 18), 0)
+                (body[0] * 30, body[1] * 30, 27, 27), 0)
 
         # Moves the snake based on the current direction
         head = self.snakeBody[0][:]
@@ -112,15 +112,14 @@ class Snake():
         # Draws the snake after it moved
         for body in self.snakeBody:
             pygame.draw.rect(self.screen, self.green,
-                (body[0] * 20, body[1] * 20, 18, 18), 0)
+                (body[0] * 30, body[1] * 30, 27, 27), 0)
 
     """ Checks to see if the game is over """
     def checkLose(self):
         head = self.snakeBody[0]
 
         # Checks to see if the snake collides without itself or goes out of bounds
-        if (head[0] < 5 or head[0] > 34 or head[1] < 5 or head[1] > 34
-                or not convertToKey(head) in self.openLocations or self.curr_moves > self.move_limit):
+        if (not convertToKey(head) in self.openLocations or self.curr_moves > self.move_limit):
             print(self.score - 1)
             self.newGame()
             self.dead = True
@@ -136,12 +135,12 @@ class Snake():
     """ Code which prints out the apple which represents the fruit on the screen """
     def displayFruit(self):
         self.screen.blit(pygame.transform.scale(self.apple,
-            (18, 18)), (self.fruit[0] * 20, self.fruit[1] * 20))
+            (27, 27)), (self.fruit[0] * 30, self.fruit[1] * 30))
 
     """ Erases the fruit from the GUI. """
     def eraseFruit(self):
         pygame.draw.rect(self.screen, self.white,
-            (self.fruit[0] * 20, self.fruit[1] * 20, 20, 20), 0)
+            (self.fruit[0] * 30, self.fruit[1] * 30, 30, 30), 0)
 
     """ Returns location of where the next fruit should be. """
     def newFruit(self):
@@ -154,20 +153,20 @@ class Snake():
         self.eraseFruit()
 
         # Displays initial score of 0
-        self.score = 1
+        self.score = 0
         self.updateScore()
 
         # Snake Body
-        self.snakeBody = [[19, 20]]
+        self.snakeBody = [[14, 15]]
 
         # Initial Fruit Location
-        self.fruit = [25, 20]
+        self.fruit = [20, 15]
 
         # A dictionary which contains all possible locations that a fruit can be at.
         self.openLocations = {}
-        for i in range(30):
-            for j in range(30):
-                self.openLocations[i + 30 * j] = [i + 5, j + 5]
+        for i in range(20):
+            for j in range(20):
+                self.openLocations[i + 400 * j] = [i + 5, j + 5]
 
         # Default direction which the snake will be moving in
         self.dir = 1
@@ -189,4 +188,4 @@ class Snake():
 
 """ Converts a given location to a key for openLocations dictionary """
 def convertToKey(location):
-    return location[0] - 5 + 30 * (location[1] - 5)
+    return location[0] - 5 + 400 * (location[1] - 5)
