@@ -1,4 +1,4 @@
-# snakeml
+# snakedqnml
 While this application can be used in multiple ways, the primary
 purpose of this application is to run allow the computer to learn 
 how to play snake on its own. The user can also choose to play 
