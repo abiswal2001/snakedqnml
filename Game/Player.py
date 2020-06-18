@@ -30,7 +30,7 @@ class Player():
                     running = False
                     pygame.quit()
 
-    """ Handles pressed keys by the player. """
+    """ Handles key strokes by the player. """
     def keyPresses(self):
         # Stores whether or not that key has been pressed
         keys=pygame.key.get_pressed()
