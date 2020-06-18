@@ -38,3 +38,8 @@ simulations folder. For the user to actually see what the computer
 did during these runs, they can run the Persistence.py file which
 will display a GUI which will show the computer playing the game
 in a very sped up version. 
+
+## Demo
+
+### Our best run
+![Demo-Gif](Img/70.gif)
